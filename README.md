@@ -14,8 +14,9 @@ This project builds a classification model for detecting pneumonia from medical 
 - Provide a trained model ready for deployment
 
 ## Data Flow and Processing Pipeline
-![workflow](https://github.com/user-attachments/assets/d35c5cfd-3d1c-4440-9626-1d2d0af0c1db)
+The project follows a standard machine learning workflow with specific adaptations for medical image processing:
 
+![workflow](https://github.com/user-attachments/assets/d35c5cfd-3d1c-4440-9626-1d2d0af0c1db)
 
 
 ## Data Processing Steps
@@ -34,6 +35,16 @@ This project builds a classification model for detecting pneumonia from medical 
 - Plotted data distribution using Seaborn.
 - Displayed sample images to verify dataset correctness.
 
+### Summary
+| Step               | Description                  | Implementation                                      |
+|--------------------|------------------------------|-----------------------------------------------------|
+| Dataset Source     | Chest X-ray images from Kaggle | Uploaded to S3 bucket                               |
+| Data Extraction    | Unzipping dataset             | Extracted to SageMaker `/tmp/` directory            |
+| Data Structure     | Pre-organized folders         | `train`, `val`, and `test` directories              |
+| Normalization      | Pixel value scaling           | `ImageDataGenerator` with `rescale=1./255`          |
+| Data Augmentation  | Increased training diversity  | Horizontal flips and zoom via `ImageDataGenerator`  |
+| Batch Processing   | Efficient loading             | Batch size of 128 for training                      |
+
 ## Model Architecture
 - **Base Model:** `ResNet50V2` (Pre-trained on ImageNet, `include_top=False`).
 - **Load Pretrained ResNet50V2 (without fully connected layer):**
@@ -45,29 +56,56 @@ This project builds a classification model for detecting pneumonia from medical 
   - **Optimizer:** Adam
   - **Loss Function:** Binary Crossentropy
   - **Metrics:** Accuracy
+ 
+### Model Design Summary:
+- Used GlobalAveragePooling2D instead of Flatten to reduce parameters and prevent overfitting
+- Added Dropout (0.5) for regularization during training
+- Binary classification with sigmoid activation for pneumonia probability
+- Adam optimizer with Binary Crossentropy loss function
 
-## Training Process
-- **Epochs:** 5 (Balanced between speed and accuracy)
-- **Batch Size:** 128 (Efficient for SageMaker instance)
-- **Early Stopping:** Used to prevent overfitting
-- **Training Time:** ~3 minutes per epoch on AWS SageMaker
+## Training 
 
-## Model Evaluation
-- **Final Accuracy:** ~91.2% (Training), 87.5% (Validation)
-- **Precision & Recall:**
-  - Normal: Precision (0.75), Recall (0.38)
-  - Pneumonia: Precision (0.58), Recall (0.88)
-- **Insights:**
-  - Model is more sensitive to Pneumonia cases (high recall).
-  - Needs further tuning to balance Normal case detection.
+### Training Infrastructure
+
+![traininginfra](https://github.com/user-attachments/assets/3289ed81-e844-4cf9-bd1d-df1e471ae70d)
+
+### Training Configuration
+
+| Parameter        | Value            | Purpose                                               |
+|------------------|------------------|--------------------------------------------------------|
+| Epochs           | 5                | Balance between training time and accuracy            |
+| Batch Size       | 128              | Optimized for GPU memory and throughput               |
+| Optimizer        | Adam             | Adaptive learning rate optimization                   |
+| Loss Function    | Binary Crossentropy | Standard for binary classification                |
+| Early Stopping   | Enabled          | Prevent overfitting by monitoring validation loss      |
+| Training Time    | ~3 min/epoch     | Total training time ~15 minutes                        |
+
+
+
+
+## Performance Results
+The trained model achieved strong results on the pneumonia classification task:
+
+| Metric                    | Training | Validation | Test  |
+|---------------------------|----------|------------|-------|
+| Accuracy                  | 91.2%    | 87.5%      | -     |
+| Normal Class Precision    | -        | -          | 0.75  |
+| Normal Class Recall       | -        | -          | 0.38  |
+| Pneumonia Class Precision | -        | -          | 0.58  |
+| Pneumonia Class Recall    | -        | -          | 0.88  |
+
+### Key Performance Insights:
+
+- High recall (0.88) for pneumonia cases indicates good sensitivity for detecting disease
+- Lower recall for normal cases suggests tendency toward false positives
+- Model prioritizes identifying potential pneumonia cases (fewer false negatives)
+- Performance balance could be improved through further hyperparameter tuning to balance Normal case detection
+
 
 ## Deployment
 - Model saved in **Keras format (`model.keras`)**.
 
-## AWS SageMaker Specs
-- **Instance Type:** `ml.g4dn.xlarge`
-- **NVIDIA T4, 4 vCPUs, 16 GiB RAM**
-- **Framework:** TensorFlow/Keras
+
 
 ## Future Improvements
 - **Use a larger GPU instance** for faster training.
