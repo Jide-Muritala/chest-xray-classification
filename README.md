@@ -3,14 +3,19 @@
 
 ## Project Overview
 
-This goal of this project is to build an AI model for detecting pneumonia from chest x-rays using Deep Learning with ResNet50. The dataset was sourced from [Kaggle](https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia) and processed using AWS SageMaker for scalable cloud-based training and deployment.
+This project builds a classification model for detecting pneumonia from medical chest x-ray images using Deep Learning with ResNet50V2. The dataset was sourced from [Kaggle](https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia) and processed using AWS SageMaker for scalable cloud-based training and deployment. The system uses transfer learning with a pre-trained ResNet50V2 convolutional neural network, which has been fine-tuned for binary classification of pneumonia versus normal X-rays.
 
 ![X-Ray Image](https://oryon.co.uk/app/uploads/2024/02/shutterstock_182657084-1-1-scaled.jpg)
 
-### AWS SageMaker Specs
-- **Instance Type:** `ml.g4dn.xlarge`
-- **NVIDIA T4, 4 vCPUs, 16 GiB RAM**
-- **Framework:** TensorFlow/Keras
+### Objectives
+- Implement a deep learning model for pneumonia classification
+- Demonstrate transfer learning using ResNet50V2
+- Document a complete ML workflow from data preparation to evaluation
+- Provide a trained model ready for deployment
+
+## Data Flow and Processing Pipeline
+![workflow](https://github.com/user-attachments/assets/d35c5cfd-3d1c-4440-9626-1d2d0af0c1db)
+
 
 
 ## Data Processing Steps
@@ -58,6 +63,11 @@ This goal of this project is to build an AI model for detecting pneumonia from c
 
 ## Deployment
 - Model saved in **Keras format (`model.keras`)**.
+
+## AWS SageMaker Specs
+- **Instance Type:** `ml.g4dn.xlarge`
+- **NVIDIA T4, 4 vCPUs, 16 GiB RAM**
+- **Framework:** TensorFlow/Keras
 
 ## Future Improvements
 - **Use a larger GPU instance** for faster training.
