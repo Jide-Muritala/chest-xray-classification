@@ -13,7 +13,18 @@ This project builds a classification model for detecting pneumonia from medical 
 - Provide a trained model ready for deployment
 
 ## Data Flow and Processing Pipeline
+
 The project follows a standard machine learning workflow with specific adaptations for medical image processing:
+
+| Section            | Purpose                     | Key Components                                      |
+|--------------------|-----------------------------|-----------------------------------------------------|
+| Setup              | Initialize environment       | Library imports, AWS configuration                  |
+| Data Loading       | Access and explore dataset   | Loading chest X-ray images, initial data exploration|
+| Preprocessing      | Prepare data for training    | Data augmentation, normalization, batching          |
+| Model Architecture | Define neural network        | ResNet50V2 configuration, custom layers             |
+| Training           | Train the model              | Training loop, callback configuration               |
+| Evaluation         | Assess model performance     | Metrics calculation, visualization                  |
+| Model Export       | Save trained model           | Save model                                          |
 
 ![workflow](https://github.com/user-attachments/assets/d35c5cfd-3d1c-4440-9626-1d2d0af0c1db)
 
@@ -28,6 +39,8 @@ The project follows a standard machine learning workflow with specific adaptatio
   - **Rescaling:** Normalized pixel values (`1./255`).
   - **Augmentation:** Applied horizontal flips and zoom for diversity.
   - **Batch Processing:** Efficiently loaded images during training.
+
+![preprocessing](https://github.com/user-attachments/assets/cab70e39-ffb0-43e0-b5d7-2520c051b7e0)
 
 ### 3. **Visualization**
 - Plotted data distribution using Seaborn.
@@ -136,7 +149,18 @@ Basic Usage Steps:
 4. Run inference to get pneumonia probability
 5. Apply threshold to determine classification
 
+## Limitations and Considerations
+
+1. Clinical Use: This model is intended for research purposes only and should not be used as the sole diagnostic tool in clinical settings.
+   
+2. Data Variability: The model's performance may vary with X-rays from different equipment or populations than those in the training data.
+   
+3. Explainability: As a deep learning model, its decision-making process is not fully interpretable.
+   
+4. Confidence Threshold: Consider adjusting the default threshold (0.5) based on your specific use case. A higher threshold (e.g., 0.7) may reduce false positives but potentially miss some cases.
+
 ## Future Improvements
+
 1. Threshold Adjustment: Experimenting with different classification thresholds could help balance precision and recall based on specific clinical needs.
 
 2. Class Weighting: Implementing class weights during training could help address the imbalance in normal vs. pneumonia detection.
