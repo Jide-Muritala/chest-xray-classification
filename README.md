@@ -1,9 +1,8 @@
-
 # Chest X-Ray Pneumonia Classification
 
 ## Project Overview
 
-This project builds a classification model for detecting pneumonia from medical chest x-ray images using Deep Learning with ResNet50V2. The dataset was sourced from [Kaggle](https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia) and processed using AWS SageMaker for scalable cloud-based training and deployment. The system uses transfer learning with a pre-trained ResNet50V2 convolutional neural network, which has been fine-tuned for binary classification of pneumonia versus normal X-rays.
+This project builds a classification model for detecting pneumonia from medical chest x-ray images using Deep Learning with ResNet50V2. The dataset was sourced from [Kaggle](https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia) and processed using AWS SageMaker for scalable cloud-based training and deployment. The system uses transfer learning with a pre-trained ResNet50V2 convolutional neural network, which has been fine-tuned for binary classification of pneumonia versus normal X-rays. The model is implemented using TensorFlow/Keras, which provides high-level APIs for building and training neural networks.
 
 ![X-Ray Image](https://oryon.co.uk/app/uploads/2024/02/shutterstock_182657084-1-1-scaled.jpg)
 
@@ -17,7 +16,6 @@ This project builds a classification model for detecting pneumonia from medical 
 The project follows a standard machine learning workflow with specific adaptations for medical image processing:
 
 ![workflow](https://github.com/user-attachments/assets/d35c5cfd-3d1c-4440-9626-1d2d0af0c1db)
-
 
 ## Data Processing Steps
 ### 1. **Dataset Preparation**
@@ -71,56 +69,84 @@ The project follows a standard machine learning workflow with specific adaptatio
 
 ### Training Configuration
 
-| Parameter        | Value            | Purpose                                               |
-|------------------|------------------|--------------------------------------------------------|
-| Epochs           | 5                | Balance between training time and accuracy            |
-| Batch Size       | 128              | Optimized for GPU memory and throughput               |
-| Optimizer        | Adam             | Adaptive learning rate optimization                   |
-| Loss Function    | Binary Crossentropy | Standard for binary classification                |
-| Early Stopping   | Enabled          | Prevent overfitting by monitoring validation loss      |
-| Training Time    | ~3 min/epoch     | Total training time ~15 minutes                        |
+The model was configured with specific hyperparameters optimized for the binary classification task of pneumonia detection:
 
+| Hyperparameter   | Value              | Purpose                                                   |
+|------------------|--------------------|-----------------------------------------------------------|
+| Optimizer        | Adam               | Adaptive learning rate optimization                       |
+| Loss Function    | Binary Crossentropy| Standard loss for binary classification problems          |
+| Metrics          | Accuracy           | Primary evaluation metric during training                 |
+| Batch Size       | 128                | Optimized for GPU memory and throughput                   |
+| Epochs           | 5                  | Balanced between training time and accuracy               |
+| Early Stopping   | Enabled            | Prevent overfitting by monitoring validation loss         |
 
-
+The batch size of 128 was specifically chosen to maximize efficiency on the SageMaker GPU instance, while the moderate epoch count of 5 balanced training time against model accuracy.
 
 ## Performance Results
+
+The training process yielded the following key performance indicators:
+
+- Training Time: ~3 minutes per epoch
+- Final Training Accuracy: 91.2%
+- Final Validation Accuracy: 87.5%
+
 The trained model achieved strong results on the pneumonia classification task:
 
-| Metric                    | Training | Validation | Test  |
-|---------------------------|----------|------------|-------|
-| Accuracy                  | 91.2%    | 87.5%      | -     |
-| Normal Class Precision    | -        | -          | 0.75  |
-| Normal Class Recall       | -        | -          | 0.38  |
-| Pneumonia Class Precision | -        | -          | 0.58  |
-| Pneumonia Class Recall    | -        | -          | 0.88  |
+| Class     | Precision | Recall |
+|-----------|-----------|--------|
+| Normal    | 0.75      | 0.38   |
+| Pneumonia | 0.58      | 0.88   |
+
+1. Pneumonia Detection (Positive Class):
+
+- High recall (0.88): Successfully identifies 88% of all pneumonia cases
+- Lower precision (0.58): 42% of predicted pneumonia cases are false positives
+
+2. Normal Detection (Negative Class):
+
+- High precision (0.75): When the model predicts normal, it's correct 75% of the time
+- Low recall (0.38): The model misses 62% of normal cases, classifying them as pneumonia
+
+This imbalance suggests the model has been optimized to minimize false negatives for pneumonia cases, which is often desirable in medical diagnostics where missing a disease is typically more problematic than a false alarm.
+
 
 ### Key Performance Insights:
 
-- High recall (0.88) for pneumonia cases indicates good sensitivity for detecting disease
-- Lower recall for normal cases suggests tendency toward false positives
-- Model prioritizes identifying potential pneumonia cases (fewer false negatives)
-- Performance balance could be improved through further hyperparameter tuning to balance Normal case detection
+#### Key Strengths
+1. **High Sensitivity for Pneumonia**: The model successfully identifies 88% of pneumonia cases, making it effective for screening purposes where catching cases is critical.
 
+2. **Good Overall Accuracy**: The 87.5% validation accuracy indicates the model performs well above random chance and could be valuable in clinical support settings.
 
-## Deployment
-- Model saved in **Keras format (`model.keras`)**.
+#### Key Limitations
+1. **Normal Case Detection**: The model's low recall (0.38) for normal cases means it frequently misclassifies healthy patients as having pneumonia, which could lead to unnecessary follow-up procedures.
 
+2. **Precision-Recall Tradeoff**: The current model configuration favors recall over precision for pneumonia cases, which may be appropriate for a screening tool but less suitable for definitive diagnosis.
 
+## Usage and Deployment
+The repository provides a trained model (`model.keras`) that can be used for inference on new chest X-ray images. 
 
-## Future Improvements
-- **Use a larger GPU instance** for faster training.
-- **Experiment with different architectures** (EfficientNet, MobileNet).
-- **Hyperparameter tuning** to improve classification balance.
+Basic Usage Steps:
 
-## How to Reproduce
-1. Clone the repository:
-   ```sh
+1. Clone the repository
+ ```sh
    git clone https://github.com/Jide-Muritala/chest-xray-classification.git
    ```
-2. Run in **AWS SageMaker Jupyter Notebook**:
-   ```sh
-   python chest-xray.ipynb
-   ```
+2. Load the pre-trained model.keras file
+3. Preprocess new X-ray images (resize to 220x220, normalize)
+4. Run inference to get pneumonia probability
+5. Apply threshold to determine classification
+
+## Future Improvements
+1. Threshold Adjustment: Experimenting with different classification thresholds could help balance precision and recall based on specific clinical needs.
+
+2. Class Weighting: Implementing class weights during training could help address the imbalance in normal vs. pneumonia detection.
+
+3. Architectural Improvements: Exploring alternative architectures like EfficientNet or MobileNet might yield better performance characteristics.
+
+4. Hyperparameter Tuning: Systematic hyperparameter optimization could improve the balance between normal and pneumonia case detection.
+
+These improvements aim to enhance the model's overall performance while maintaining its high sensitivity for pneumonia detection[.](https://deepwiki.com/Jide-Muritala/chest-xray-classification)
+
 
 ---
 
